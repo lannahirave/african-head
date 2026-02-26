@@ -7,7 +7,7 @@
 #include "renderer.h"
 #include "model.h"
 
-// Пункти 7+8: шейдер Фонга з текстурою та normal mapping
+// пункти 7+8: шейдер Фонга з текстурою та normal mapping
 
 struct PhongShader : IShader {
     const Model &model;
@@ -18,7 +18,7 @@ struct PhongShader : IShader {
     mat4 mv;                         // кешована матриця ModelView
     mat4 mv_it;                      // кешований обернений транспонований ModelView
 
-    // Тангенти precompute на трикутник (щоб уникнути інверсії матриці на кожному пікселі)
+    // тангенти precompute на трикутник (щоб уникнути інверсії матриці на кожному пікселі)
     vec4 tangent, bitangent;
     bool darboux_valid = false;
 
@@ -36,7 +36,7 @@ struct PhongShader : IShader {
         return Perspective * gl_Position;
     }
 
-    // Викликається після обробки 3 вершин грані: рахує tangent frame
+    // викликається після обробки 3 вершин грані: рахує tangent frame
     void precompute_face() {
         darboux_valid = false;
         if (!model.has_normalmap()) return;
@@ -56,10 +56,10 @@ struct PhongShader : IShader {
     }
 
     std::pair<bool, cv::Vec3b> fragment(const vec3 &bar) const override {
-        // Інтерполяція UV (п.8: накладання текстури)
+        // Інтерполяція UV
         vec2 uv = varying_uv[0] * bar[0] + varying_uv[1] * bar[1] + varying_uv[2] * bar[2];
 
-        // П.7: освітлення з normal mapping
+        // освітлення з normal mapping
         vec4 n;
         if (darboux_valid) {
             vec4 interp_nrm = normalized(varying_nrm[0] * bar[0] + varying_nrm[1] * bar[1] + varying_nrm[2] * bar[2]);
@@ -69,7 +69,7 @@ struct PhongShader : IShader {
             n = normalized(varying_nrm[0] * bar[0] + varying_nrm[1] * bar[1] + varying_nrm[2] * bar[2]);
         }
 
-        // Модель освітлення Фонга
+        // модель освітлення Фонга
         vec4 l = light_dir;
         vec4 r = normalized(n * (n * l) * 2 - l);
 
@@ -80,7 +80,7 @@ struct PhongShader : IShader {
 
         double intensity = ambient + diffuse + specular;
 
-        // П.8: вибірка кольору з diffuse-текстури
+        // п.8: вибірка кольору з diffuse-текстури
         cv::Vec3b tex_color = model.sample_diffuse(uv);
         cv::Vec3b frag_color;
         for (int c = 0; c < 3; c++) {
@@ -90,12 +90,12 @@ struct PhongShader : IShader {
     }
 };
 
-// Основна програма з анімованим циклом рендеру
+// основна програма з анімованим циклом рендеру
 int main() {
     constexpr int WIDTH  = 800;
     constexpr int HEIGHT = 800;
 
-    // Завантаження моделей (голова + внутрішня частина очей)
+    // завантаження моделей (голова + внутрішня частина очей)
     const std::vector<std::string> obj_files = {
         "models/african_head.obj",
         "models/african_head_eye_inner.obj",
@@ -110,17 +110,17 @@ int main() {
         }
     }
 
-    // Параметри камери і світла
+    // параметри камери і світла
     const vec3 eye{0, 0, 3};
     const vec3 center{0, 0, 0};
     const vec3 up{0, 1, 0};
-    // Напрямок світла: зліва, трохи зверху і трохи спереду
+    // напрямок світла: зліва, трохи зверху і трохи спереду
     const vec3 light_world{-1.0, 0.35, 0.25};
 
-    // Колір фону (BGR)
+    // колір фону (BGR)
     const cv::Scalar bg_color(209, 195, 177);
 
-    // Стан сцени
+    // стан сцени
     bool use_perspective = true;
     double angle = 0.0;
     const double rotation_speed = 0.6; // рад/с
@@ -129,39 +129,26 @@ int main() {
     cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
 
     auto prev_time = std::chrono::high_resolution_clock::now();
-    int frame_count = 0;
-    double fps_timer = 0;
-    double current_fps = 0;
-
     while (true) {
-        // Дельта часу між кадрами
+        // дельта часу між кадрами
         auto now = std::chrono::high_resolution_clock::now();
         double dt = std::chrono::duration<double>(now - prev_time).count();
         prev_time = now;
 
-        // Лічильник FPS
-        frame_count++;
-        fps_timer += dt;
-        if (fps_timer >= 0.5) {
-            current_fps = frame_count / fps_timer;
-            frame_count = 0;
-            fps_timer = 0;
-        }
-
-        // Оновлення кута обертання
+        // оновлення кута обертання
         angle += rotation_speed * dt;
 
-        // Налаштування матриць
-        // П.4: 3D-перетворення — lookat + обертання
+        // налаштування матриць
+        // п.4: 3D-перетворення — lookat + обертання
         lookat(eye, center, up);
         mat4 view = ModelView; // камера без моделі
         mat4 rot = rotation_y(angle);
         ModelView = ModelView * rot;
 
-        // Напрямок світла у координатах камери (світло фіксоване над камерою).
+        // напрямок світла у координатах камери (світло фіксоване над камерою).
         vec4 light_eye = normalized(view * vec4{light_world.x, light_world.y, light_world.z, 0.});
 
-        // П.5: проєкція (перемикання клавішею 'p')
+        // проєкція
         if (use_perspective)
             init_perspective(norm(eye - center));
         else
@@ -169,13 +156,12 @@ int main() {
 
         init_viewport(WIDTH / 16, HEIGHT / 16, WIDTH * 7 / 8, HEIGHT * 7 / 8);
 
-        // Очищення буферів
-        // Буфери створюються щокадру (без оптимізації перевикористання)
+        // очищення буферів
         cv::Mat framebuffer(HEIGHT, WIDTH, CV_8UC3);
         framebuffer.setTo(bg_color);
         init_zbuffer(WIDTH, HEIGHT);
 
-        // Рендер усіх моделей
+        // рендер усіх моделей
         for (const auto &m : models) {
             PhongShader shader(light_eye, m, ModelView);
 
@@ -189,28 +175,26 @@ int main() {
             }
         }
 
-        // Вертикальний переворот (в OpenCV Y=0 зверху, у рендері знизу)
+        // вертикальний переворот (в OpenCV Y=0 зверху, у рендері знизу)
 
         cv::flip(framebuffer, framebuffer, 0);
 
         // HUD-оверлей
-        std::string fps_text = "FPS: " + std::to_string((int)current_fps);
         std::string proj_text = use_perspective ? "Projection: Perspective" : "Projection: Axonometric";
-        cv::putText(framebuffer, fps_text, cv::Point(10, 25),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
-        cv::putText(framebuffer, proj_text, cv::Point(10, 50),
+        cv::putText(framebuffer, proj_text, cv::Point(10, 25),
                     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
         cv::putText(framebuffer, "[P] toggle projection  [ESC] quit", cv::Point(10, HEIGHT - 15),
                     cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(200, 200, 200), 1);
 
-        // Відображення кадру
+        // відображення кадру
         cv::imshow(window_name, framebuffer);
 
-        // Вихід по ESC або закриттю вікна
+        // вихід по ESC або закриттю вікна
         int key = cv::waitKey(1);
+        // ESC = 27
         if (key == 27) break;
         if (cv::getWindowProperty(window_name, cv::WND_PROP_VISIBLE) < 1) break;
-        if (key == 'p' || key == 'P') {
+        if (key == 'p' || key == 'P' || key == 'з' || key == 'З'  ) {
             use_perspective = !use_perspective;
         }
     }

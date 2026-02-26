@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 #include "geometry.h"
 
-// Пункт 1: читання OBJ-моделі з підтримкою текстур
+// пункт 1: читання OBJ-моделі з підтримкою текстур
 class Model {
     std::vector<vec4> verts_;
     std::vector<vec4> norms_;
@@ -22,19 +22,28 @@ public:
     Model(const std::string &filename);
 
     int nverts() const;
+
     int nfaces() const;
 
     vec4 vert(int i) const;
+
     vec4 vert(int iface, int nthvert) const;
+
     vec4 normal(int iface, int nthvert) const;
+
     vec4 normal(const vec2 &uv) const;
+
     vec2 uv(int iface, int nthvert) const;
 
     cv::Vec3b sample_diffuse(const vec2 &uv) const;
+
     cv::Vec3b sample_normal(const vec2 &uv) const;
+
     double sample_specular(const vec2 &uv) const;
 
     bool has_diffuse() const;
+
     bool has_normalmap() const;
+
     bool has_specular() const;
 };

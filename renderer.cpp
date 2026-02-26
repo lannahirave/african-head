@@ -2,16 +2,16 @@
 #include <cmath>
 #include "renderer.h"
 
-// Глобальний стан рендерера
+// глобальний стан рендерера
 
 mat4 ModelView, Viewport, Perspective;
 std::vector<double> zbuffer;
 
-// Пункт 5: налаштування проєкцій
+// пункт 5: налаштування проєкцій
 void lookat(const vec3 &eye, const vec3 &center, const vec3 &up) {
-    vec3 n = normalized(eye - center);        // вперед (камера дивиться вздовж -n)
-    vec3 l = normalized(cross(up, n));        // вправо
-    vec3 m = normalized(cross(n, l));         // скоригований вектор "вгору"
+    vec3 n = normalized(eye - center);
+    vec3 l = normalized(cross(up, n));
+    vec3 m = normalized(cross(n, l));
     ModelView = mat4{{{l.x, l.y, l.z, 0},
                       {m.x, m.y, m.z, 0},
                       {n.x, n.y, n.z, 0},
@@ -22,7 +22,7 @@ void lookat(const vec3 &eye, const vec3 &center, const vec3 &up) {
                       {0, 0, 0, 1}}};
 }
 
-// Перспективна проєкція: далекі об'єкти виглядають меншими
+// перспективна проєкція
 void init_perspective(double f) {
     Perspective = {{{1, 0, 0,     0},
                     {0, 1, 0,     0},
@@ -30,7 +30,7 @@ void init_perspective(double f) {
                     {0, 0, -1/f,  1}}};
 }
 
-// Аксонометрична (ортографічна) проєкція: без перспективних спотворень
+// аксонометрична (ортографічна) проєкція
 void init_orthographic() {
     Perspective = mat4::identity();
 }
@@ -42,12 +42,12 @@ void init_viewport(int x, int y, int w, int h) {
                  {0,      0,     0, 1}}};
 }
 
-// Пункт 6: Z-буфер
+// пункт 6: Z-буфер
 void init_zbuffer(int width, int height) {
     zbuffer.assign(width * height, -1e9);
 }
 
-// Пункт 2: малювання відрізків — алгоритм Брезенгема
+// пункт 2: малювання відрізків — алгоритм Брезенгема
 void draw_line(int x0, int y0, int x1, int y1, cv::Mat &framebuffer, const cv::Vec3b &color) {
     bool steep = false;
     if (std::abs(x0 - x1) < std::abs(y0 - y1)) {
@@ -81,22 +81,22 @@ void draw_line(int x0, int y0, int x1, int y1, cv::Mat &framebuffer, const cv::V
     }
 }
 
-// Очищення Z-буфера
+// очищення Z-буфера
 void clear_zbuffer(int width, int height) {
     zbuffer.assign(width * height, -1e9);
 }
 
-// Пункти 3 + 6: растеризація трикутника із Z-буфером
+// пункти 3 + 6: растеризація трикутника із Z-буфером
 void rasterize(const Triangle &clip, const IShader &shader, cv::Mat &framebuffer) {
     int width = framebuffer.cols;
     int height = framebuffer.rows;
 
-    // Нормалізовані координати пристрою (perspective divide)
+    // нормалізовані координати пристрою (perspective divide)
     vec4 ndc[3] = {clip[0] / clip[0].w,
                    clip[1] / clip[1].w,
                    clip[2] / clip[2].w};
 
-    // Екранні координати
+    // екранні координати
     vec2 screen[3] = {(Viewport * ndc[0]).xy(),
                       (Viewport * ndc[1]).xy(),
                       (Viewport * ndc[2]).xy()};
@@ -108,7 +108,7 @@ void rasterize(const Triangle &clip, const IShader &shader, cv::Mat &framebuffer
     }};
     if (ABC.det() < 1) return; // відсікання зворотних і вироджених трикутників
 
-    // Обмежувальний прямокутник, обрізаний межами екрана
+    // bounding box
     int xmin = std::max<int>(std::min({screen[0].x, screen[1].x, screen[2].x}), 0);
     int xmax = std::min<int>(std::max({screen[0].x, screen[1].x, screen[2].x}), width - 1);
     int ymin = std::max<int>(std::min({screen[0].y, screen[1].y, screen[2].y}), 0);
@@ -119,12 +119,11 @@ void rasterize(const Triangle &clip, const IShader &shader, cv::Mat &framebuffer
             vec3 bc_screen = ABC.invert_transpose() * vec3{(double)x, (double)y, 1.0};
             if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
 
-            // Перевірка глибини через Z-буфер (п.6)
+            // перевірка глибини через Z-буфер (п.6)
             double z = ndc[0].z * bc_screen[0] + ndc[1].z * bc_screen[1] + ndc[2].z * bc_screen[2];
             int idx = x + y * width;
             if (z <= zbuffer[idx]) continue;
 
-            // Perspective-correct барицентрична інтерполяція
             vec3 bc_clip = {bc_screen.x / clip[0].w, bc_screen.y / clip[1].w, bc_screen.z / clip[2].w};
             bc_clip = bc_clip / (bc_clip.x + bc_clip.y + bc_clip.z);
 

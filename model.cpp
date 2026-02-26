@@ -3,8 +3,9 @@
 #include <iostream>
 #include <cstring>
 #include "model.h"
-// Власний завантажувач TGA у cv::Mat (для підтримки текстур у форматі .tga)
 
+
+// власний завантажувач TGA у cv::Mat (для підтримки текстур у форматі .tga)
 #pragma pack(push,1)
 struct TGAHeader {
     uint8_t  idlength = 0;
@@ -34,14 +35,14 @@ static cv::Mat load_tga(const std::string &path) {
     int bpp = header.bitsperpixel >> 3; // байт на піксель
     if (w <= 0 || h <= 0 || (bpp != 1 && bpp != 3 && bpp != 4)) return {};
 
-    // Пропускаємо поле ID
+    // пропускаємо поле ID
     if (header.idlength > 0) in.seekg(header.idlength, std::ios::cur);
 
     size_t nbytes = (size_t)bpp * w * h;
     std::vector<uint8_t> data(nbytes);
 
     if (header.datatypecode == 2 || header.datatypecode == 3) {
-        // Нестиснуте зображення
+        // нестиснуте зображення
         in.read(reinterpret_cast<char*>(data.data()), nbytes);
         if (!in.good()) return {};
     } else if (header.datatypecode == 10 || header.datatypecode == 11) {
@@ -74,7 +75,7 @@ static cv::Mat load_tga(const std::string &path) {
         return {};
     }
 
-    // Перетворення у BGR-формат cv::Mat
+    // перетворення у BGR-формат cv::Mat
     cv::Mat result(h, w, CV_8UC3);
     for (int j = 0; j < h; j++) {
         for (int i = 0; i < w; i++) {
@@ -87,14 +88,14 @@ static cv::Mat load_tga(const std::string &path) {
         }
     }
 
-    // Якщо біт 5 у imagedescriptor не встановлено, початок знизу зліва -> flip
+    // якщо біт 5 у imagedescriptor не встановлено, початок знизу зліва -> flip
     if (!(header.imagedescriptor & 0x20))
         cv::flip(result, result, 0);
 
     return result;
 }
 
-// Пункт 1: читання OBJ-моделі
+// пункт 1: читання OBJ-моделі
 Model::Model(const std::string &filename) {
     std::ifstream in(filename, std::ifstream::in);
     if (in.fail()) {
