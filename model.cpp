@@ -94,8 +94,7 @@ static cv::Mat load_tga(const std::string &path) {
     return result;
 }
 
-// ─── Пункт 1: читання OBJ-моделі (5 балів) ───────────────────────────────────
-
+// Пункт 1: читання OBJ-моделі
 Model::Model(const std::string &filename) {
     std::ifstream in(filename, std::ifstream::in);
     if (in.fail()) {
@@ -149,9 +148,12 @@ Model::Model(const std::string &filename) {
 }
 
 void Model::load_texture(const std::string &filename, const std::string &suffix, cv::Mat &tex) {
+    size_t slash = filename.find_last_of("/\\");
+    size_t name_start = (slash == std::string::npos) ? 0 : slash + 1;
     size_t dot = filename.find_last_of(".");
-    if (dot == std::string::npos) return;
-    std::string texfile = filename.substr(0, dot) + suffix;
+    if (dot == std::string::npos || dot < name_start) return;
+    std::string stem = filename.substr(name_start, dot - name_start);
+    std::string texfile = "textures/" + stem + suffix;
     tex = load_tga(texfile);
     if (tex.empty()) {
         std::cerr << "Texture " << texfile << " loading failed" << std::endl;

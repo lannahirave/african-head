@@ -7,7 +7,7 @@
 #include "renderer.h"
 #include "model.h"
 
-// ─── Пункти 7+8: шейдер Фонга з текстурою та normal mapping (10+10 балів) ─
+// Пункти 7+8: шейдер Фонга з текстурою та normal mapping
 
 struct PhongShader : IShader {
     const Model &model;
@@ -90,16 +90,15 @@ struct PhongShader : IShader {
     }
 };
 
-// ─── Основна програма з анімованим циклом рендеру ───────────────────────────
-
+// Основна програма з анімованим циклом рендеру
 int main() {
     constexpr int WIDTH  = 800;
     constexpr int HEIGHT = 800;
 
     // Завантаження моделей (голова + внутрішня частина очей)
     const std::vector<std::string> obj_files = {
-        "african_head.obj",
-        "african_head_eye_inner.obj",
+        "models/african_head.obj",
+        "models/african_head_eye_inner.obj",
     };
     std::vector<Model> models;
     models.reserve(obj_files.size());
@@ -129,10 +128,6 @@ int main() {
     const std::string window_name = "African Head 3D Renderer";
     cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
 
-    // Буфери виділяються один раз і перевикористовуються кожен кадр
-    cv::Mat framebuffer(HEIGHT, WIDTH, CV_8UC3);
-    init_zbuffer(WIDTH, HEIGHT);
-
     auto prev_time = std::chrono::high_resolution_clock::now();
     int frame_count = 0;
     double fps_timer = 0;
@@ -156,8 +151,7 @@ int main() {
         // Оновлення кута обертання
         angle += rotation_speed * dt;
 
-        // ── Налаштування матриць ────────────────────────────────────────
-
+        // Налаштування матриць
         // П.4: 3D-перетворення — lookat + обертання
         lookat(eye, center, up);
         mat4 view = ModelView; // камера без моделі
@@ -175,13 +169,13 @@ int main() {
 
         init_viewport(WIDTH / 16, HEIGHT / 16, WIDTH * 7 / 8, HEIGHT * 7 / 8);
 
-        // ── Очищення буферів ────────────────────────────────────────────
-
+        // Очищення буферів
+        // Буфери створюються щокадру (без оптимізації перевикористання)
+        cv::Mat framebuffer(HEIGHT, WIDTH, CV_8UC3);
         framebuffer.setTo(bg_color);
-        clear_zbuffer(WIDTH, HEIGHT);
+        init_zbuffer(WIDTH, HEIGHT);
 
-        // ── Рендер усіх моделей ─────────────────────────────────────────
-
+        // Рендер усіх моделей
         for (const auto &m : models) {
             PhongShader shader(light_eye, m, ModelView);
 
@@ -195,12 +189,11 @@ int main() {
             }
         }
 
-        // ── Вертикальний переворот (в OpenCV Y=0 зверху, у рендері знизу) ─
+        // Вертикальний переворот (в OpenCV Y=0 зверху, у рендері знизу)
 
         cv::flip(framebuffer, framebuffer, 0);
 
-        // ── HUD-оверлей ────────────────────────────────────────────────
-
+        // HUD-оверлей
         std::string fps_text = "FPS: " + std::to_string((int)current_fps);
         std::string proj_text = use_perspective ? "Projection: Perspective" : "Projection: Axonometric";
         cv::putText(framebuffer, fps_text, cv::Point(10, 25),
@@ -210,8 +203,7 @@ int main() {
         cv::putText(framebuffer, "[P] toggle projection  [ESC] quit", cv::Point(10, HEIGHT - 15),
                     cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(200, 200, 200), 1);
 
-        // ── Відображення кадру ─────────────────────────────────────────
-
+        // Відображення кадру
         cv::imshow(window_name, framebuffer);
 
         // Вихід по ESC або закриттю вікна

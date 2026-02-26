@@ -1,0 +1,18 @@
+# CLion / IDE
+.idea/
+
+# CMake / build outputs
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Binaries
+african-head
+*.out
+
+# OS
+.DS_Store
+Thumbs.db

@@ -3,8 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-// ─── Узагальнений вектор ──────────────────────────────────────────────────────
-
+// Узагальнений вектор
 template<int n> struct vec {
     double data[n] = {0};
     double& operator[](const int i)       { assert(i>=0 && i<n); return data[i]; }
@@ -50,8 +49,7 @@ template<int n> std::ostream& operator<<(std::ostream& out, const vec<n>& v) {
     return out;
 }
 
-// ─── Спеціалізації з іменованими полями ──────────────────────────────────────
-
+// Спеціалізації з іменованими полями
 template<> struct vec<2> {
     double x = 0, y = 0;
     double& operator[](const int i)       { assert(i>=0 && i<2); return i ? y : x; }
@@ -90,8 +88,7 @@ inline vec3 cross(const vec3 &v1, const vec3 &v2) {
     return {v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x};
 }
 
-// ─── Узагальнена матриця ──────────────────────────────────────────────────────
-
+// Узагальнена матриця
 template<int n> struct dt;
 
 template<int nrows, int ncols> struct mat {
@@ -199,8 +196,7 @@ template<> struct dt<1> {
     }
 };
 
-// ─── Матриці 3D-перетворень (пункт 4) ────────────────────────────────────────
-
+// Матриці 3D-перетворень (пункт 4)
 typedef mat<4,4> mat4;
 
 inline mat4 translation(double tx, double ty, double tz) {
