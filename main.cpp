@@ -122,6 +122,7 @@ int main() {
 
     // стан сцени
     bool use_perspective = true;
+    bool paused = false;
     double angle = 0.0;
     const double rotation_speed = 0.6; // рад/с
 
@@ -136,7 +137,9 @@ int main() {
         prev_time = now;
 
         // оновлення кута обертання
-        angle += rotation_speed * dt;
+        if (!paused) {
+            angle += rotation_speed * dt;
+        }
 
         // налаштування матриць
         // п.4: 3D-перетворення — lookat + обертання
@@ -181,10 +184,12 @@ int main() {
 
         // HUD-оверлей
         std::string proj_text = use_perspective ? "Projection: Perspective" : "Projection: Axonometric";
-        cv::putText(framebuffer, proj_text, cv::Point(10, 25),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
-        cv::putText(framebuffer, "[P] toggle projection  [ESC] quit", cv::Point(10, HEIGHT - 15),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(200, 200, 200), 1);
+        cv::rectangle(framebuffer, cv::Point(0, 0), cv::Point(WIDTH, 36), cv::Scalar(20, 20, 20), cv::FILLED);
+        cv::rectangle(framebuffer, cv::Point(0, HEIGHT - 34), cv::Point(WIDTH, HEIGHT), cv::Scalar(20, 20, 20), cv::FILLED);
+        cv::putText(framebuffer, proj_text, cv::Point(10, 24),
+                    cv::FONT_HERSHEY_SIMPLEX, 0.55, cv::Scalar(80, 255, 80), 1, cv::LINE_AA);
+        cv::putText(framebuffer, "[P] toggle projection  [S] pause  [ESC] quit", cv::Point(10, HEIGHT - 12),
+                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(230, 230, 230), 1, cv::LINE_AA);
 
         // відображення кадру
         cv::imshow(window_name, framebuffer);
@@ -197,6 +202,9 @@ int main() {
 
         if (key == 'p' || key == 'P') {
             use_perspective = !use_perspective;
+        }
+        if (key == 's' || key == 'S') {
+            paused = !paused;
         }
     }
 
