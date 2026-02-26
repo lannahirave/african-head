@@ -136,7 +136,7 @@ Model::Model(const std::string &filename) {
                 cnt++;
             }
             if (3 != cnt) {
-                std::cerr << "Error: OBJ file must be triangulated" << std::endl;
+                std::cerr << "Error" << std::endl;
                 return;
             }
         }
@@ -148,6 +148,7 @@ Model::Model(const std::string &filename) {
     load_texture(filename, "_spec.tga", specularmap_);
 }
 
+// підвантаження тга текстур
 void Model::load_texture(const std::string &filename, const std::string &suffix, cv::Mat &tex) {
     size_t slash = filename.find_last_of("/\\");
     size_t name_start = (slash == std::string::npos) ? 0 : slash + 1;

@@ -190,11 +190,12 @@ int main() {
         cv::imshow(window_name, framebuffer);
 
         // вихід по ESC або закриттю вікна
-        int key = cv::waitKey(1);
+        int key = cv::waitKeyEx(1);
         // ESC = 27
         if (key == 27) break;
         if (cv::getWindowProperty(window_name, cv::WND_PROP_VISIBLE) < 1) break;
-        if (key == 'p' || key == 'P' || key == 'з' || key == 'З'  ) {
+
+        if (key == 'p' || key == 'P') {
             use_perspective = !use_perspective;
         }
     }
