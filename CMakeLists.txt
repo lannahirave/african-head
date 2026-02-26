@@ -19,6 +19,7 @@ add_executable(african-head
     main.cpp
     model.cpp
     renderer.cpp
+    phong_shader.cpp
 )
 
 target_link_libraries(african-head ${OpenCV_LIBS})
@@ -42,3 +43,4 @@ configure_file(textures/african_head_eye_inner_spec.tga textures/african_head_ey
 configure_file(textures/african_head_eye_outer_diffuse.tga textures/african_head_eye_outer_diffuse.tga COPYONLY)
 configure_file(textures/african_head_eye_outer_nm_tangent.tga textures/african_head_eye_outer_nm_tangent.tga COPYONLY)
 configure_file(textures/african_head_eye_outer_spec.tga textures/african_head_eye_outer_spec.tga COPYONLY)
+
