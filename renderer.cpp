@@ -116,7 +116,7 @@ void rasterize(const Triangle &clip, const IShader &shader, cv::Mat &framebuffer
 
     for (int x = xmin; x <= xmax; x++) {
         for (int y = ymin; y <= ymax; y++) {
-            vec3 bc_screen = ABC.invert_transpose() * vec3{(double)x, (double)y, 1.0};
+            vec3 bc_screen = ABC.invert_transpose() * vec3{(double)x, (double)y, 1.0}; // барицентричні координати
             if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
 
             // перевірка глибини через Z-буфер (п.6)
