@@ -31,7 +31,6 @@ endif()
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/models)
 configure_file(models/african_head.obj models/african_head.obj COPYONLY)
 configure_file(models/african_head_eye_inner.obj models/african_head_eye_inner.obj COPYONLY)
-configure_file(models/african_head_eye_outer.obj models/african_head_eye_outer.obj COPYONLY)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/textures)
 configure_file(textures/african_head_diffuse.tga textures/african_head_diffuse.tga COPYONLY)
@@ -40,7 +39,4 @@ configure_file(textures/african_head_spec.tga textures/african_head_spec.tga COP
 configure_file(textures/african_head_eye_inner_diffuse.tga textures/african_head_eye_inner_diffuse.tga COPYONLY)
 configure_file(textures/african_head_eye_inner_nm_tangent.tga textures/african_head_eye_inner_nm_tangent.tga COPYONLY)
 configure_file(textures/african_head_eye_inner_spec.tga textures/african_head_eye_inner_spec.tga COPYONLY)
-configure_file(textures/african_head_eye_outer_diffuse.tga textures/african_head_eye_outer_diffuse.tga COPYONLY)
-configure_file(textures/african_head_eye_outer_nm_tangent.tga textures/african_head_eye_outer_nm_tangent.tga COPYONLY)
-configure_file(textures/african_head_eye_outer_spec.tga textures/african_head_eye_outer_spec.tga COPYONLY)
 
